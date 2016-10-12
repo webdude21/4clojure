@@ -339,7 +339,8 @@ dedupe
 ;; (= (__ [4 5 6] 1) '(4 5 6))
 ;; (= (__ [[1 2] [3 4]] 2) '([1 2] [1 2] [3 4] [3 4]))
 ;; (= (__ [44 33] 2) [44 44 33 33])
-
+(fn [coll times]
+  (mapcat #(apply vector (repeat times %)) coll))
 
 
 ;; http://www.4clojure.com/problem/34
