@@ -200,6 +200,11 @@ format "Hello, %s!"
 ;; (= (__ [[1 2] [3 4] [5 6]]) 3)
 ;; (= (__ '(13)) 1)
 ;; (= (__ '(:a :b :c)) 3)
+(fn [lst]
+  (loop [i lst cnt 0]
+    (if (empty? i)
+      cnt
+      (recur (rest i) (inc cnt)))))
 
 
 ;; http://www.4clojure.com/problem/23
@@ -210,7 +215,11 @@ format "Hello, %s!"
 ;; (= (__ [1 2 3 4 5]) [5 4 3 2 1])
 ;; (= (__ (sorted-set 5 7 2 7)) '(7 5 2))
 ;; (= (__ [[1 2][3 4][5 6]]) [[5 6][3 4][1 2]])
-
+(fn my-reverse
+  [coll]
+  (if (empty? coll)
+    []
+    (conj (my-reverse (rest coll)) (first coll))))
 
 ;; http://www.4clojure.com/problem/24
 ;; Sum It All Up
@@ -222,7 +231,7 @@ format "Hello, %s!"
 ;; (= (__ #{4 2 1}) 7)
 ;; (= (__ '(0 0 -1)) -1)
 ;; (= (__ '(1 10 3)) 14)
-
+reduce +
 
 ;; http://www.4clojure.com/problem/25
 ;; Find the odd numbers
@@ -233,7 +242,7 @@ format "Hello, %s!"
 ;; (= (__ [4 2 1 6]) '(1))
 ;; (= (__ [2 2 4 6]) '())
 ;; (= (__ [1 1 1 3]) '(1 1 1 3))
-
+filter odd?
 
 ;; http://www.4clojure.com/problem/26
 ;; Fibonacci Sequence
@@ -243,8 +252,11 @@ format "Hello, %s!"
 ;; (= (__ 3) '(1 1 2))
 ;; (= (__ 6) '(1 1 2 3 5 8))
 ;; (= (__ 8) '(1 1 2 3 5 8 13 21))
-
-
+(fn [n]
+  (take n
+        (map first
+             (iterate
+               (fn [[a b]] [b (+' a b)]) [1 1]))))
 
 ;; http://www.4clojure.com/problem/27
 ;; Palindrome Detector
@@ -256,7 +268,11 @@ format "Hello, %s!"
 ;; (true? (__ [:foo :bar :foo]))
 ;; (true? (__ '(1 1 3 3 1 1)))
 ;; (false? (__ '(:a :b :c)))
-
+(fn [x]
+  (let [res (reverse x)]
+    (= x (if (string? x)
+           (apply str res)
+           res))))
 
 ;; http://www.4clojure.com/problem/28
 ;; Flatten a Sequence
@@ -266,7 +282,9 @@ format "Hello, %s!"
 ;; (= (__ '((1 2) 3 [4 [5 6]])) '(1 2 3 4 5 6))
 ;; (= (__ ["a" ["b"] "c"]) '("a" "b" "c"))
 ;; (= (__ '((((:a))))) '(:a))
-
+(fn [coll]
+  (filter (complement sequential?)
+          (rest (tree-seq sequential? seq coll))))
 
 ;; http://www.4clojure.com/problem/29
 ;; Get the Caps
@@ -276,6 +294,8 @@ format "Hello, %s!"
 ;; (= (__ "HeLlO, WoRlD!") "HLOWRD")
 ;; (empty? (__ "nothing"))
 ;; (= (__ "$#A(*&987Zf") "AZ")
+(fn [chrs]
+  (apply str (filter (fn [x] (Character/isUpperCase x)) chrs)))
 
 ;; http://www.4clojure.com/problem/30
 ;; Compress a Sequence
@@ -285,7 +305,7 @@ format "Hello, %s!"
 ;; (= (apply str (__ "Leeeeeerrroyyy")) "Leroy")
 ;; (= (__ [1 1 2 3 3 2 2 3]) '(1 2 3 2 3))
 ;; (= (__ [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2]))
-
+dedupe
 
 ;; http://www.4clojure.com/problem/31
 ;; Pack a Sequence
@@ -295,7 +315,7 @@ format "Hello, %s!"
 ;; (= (__ [1 1 2 1 1 1 3 3]) '((1 1) (2) (1 1 1) (3 3)))
 ;; (= (__ [:a :a :b :b :c]) '((:a :a) (:b :b) (:c)))
 ;; (= (__ [[1 2] [1 2] [3 4]]) '(([1 2] [1 2]) ([3 4])))
-
+#(partition-by identity %)
 
 ;; http://www.4clojure.com/problem/32
 ;; Duplicate a Sequence
@@ -306,8 +326,8 @@ format "Hello, %s!"
 ;; (= (__ [:a :a :b :b]) '(:a :a :a :a :b :b :b :b))
 ;; (= (__ [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))
 ;; (= (__ [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))
-
-
+(fn [coll]
+  (mapcat #(vector % %) coll))
 
 ;; http://www.4clojure.com/problem/33
 ;; Replicate a Sequence
