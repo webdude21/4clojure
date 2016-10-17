@@ -351,8 +351,10 @@ dedupe
 ;; (= (__ 1 4) '(1 2 3))
 ;; (= (__ -2 2) '(-2 -1 0 1))
 ;; (= (__ 5 8) '(5 6 7))
-
-
+(fn [start end]
+  (loop [i start acc []]
+    (if (< i end)
+      (recur (inc i) (conj acc i)) acc)))
 
 ;; http://www.4clojure.com/problem/35
 ;; Local bindings
@@ -363,7 +365,6 @@ dedupe
 ;; (= __ (let [x 3, y 10] (- y x)))
 ;; (= __ (let [x 21] (let [y 3] (/ x y))))
 7
-
 
 ;; http://www.4clojure.com/problem/36
 ;; Let it Be
@@ -391,6 +392,8 @@ dedupe
 ;; (= (__ 1 8 3 4) 8)
 ;; (= (__ 30 20) 30)
 ;; (= (__ 45 67 11) 67)
+(fn [& args]
+  (last (sort args)))
 
 ;; http://www.4clojure.com/problem/39
 ;; Interleave Two Seqs
@@ -401,6 +404,7 @@ dedupe
 ;; (= (__ [1 2] [3 4 5 6]) '(1 3 2 4))
 ;; (= (__ [1 2 3 4] [5]) [1 5])
 ;; (= (__ [30 20] [25 15]) [30 25 20 15])
+#(mapcat vector %1 %2)
 
 ;; http://www.4clojure.com/problem/40
 ;; Interpose a Seq
@@ -410,6 +414,8 @@ dedupe
 ;; (= (__ 0 [1 2 3]) [1 0 2 0 3])
 ;; (= (apply str (__ ", " ["one" "two" "three"])) "one, two, three")
 ;; (= (__ :z [:a :b :c :d]) [:a :z :b :z :c :z :d])
+(fn [_ coll]
+  (rest (mapcat #(vector _ %) coll)))
 
 ;; http://www.4clojure.com/problem/41
 ;; Drop Every Nth Item
@@ -465,7 +471,7 @@ dedupe
 ;; Description: The iterate function can be used to produce an infinite lazy sequence. 
 ;; TestCases: 
 ;; (= __ (take 5 (iterate #(+ 3 %) 1)))
-
+'(1 4 7 10 13)
 
 ;; http://www.4clojure.com/problem/46
 ;; Flipping out
@@ -476,7 +482,8 @@ dedupe
 ;; (= true ((__ >) 7 8))
 ;; (= 4 ((__ quot) 2 8))
 ;; (= [1 2 3] ((__ take) [1 2 3 4 5] 3))
-
+(fn [in-fn]
+  #(in-fn %2 %1))
 
 ;; http://www.4clojure.com/problem/47
 ;; Contain Yourself
@@ -487,7 +494,7 @@ dedupe
 ;; (contains? [1 1 1 1 1] __)
 ;; (contains? {4 :a 2 :b} __)
 ;; (not (contains? '(1 2 4) __))
-
+4
 
 ;; http://www.4clojure.com/problem/48
 ;; Intro to some
@@ -496,7 +503,7 @@ dedupe
 ;; TestCases: 
 ;; (= __ (some #{2 7 6} [5 6 7 8]))
 ;; (= __ (some #(when (even? %) %) [5 6 7 8]))
-
+6
 
 ;; http://www.4clojure.com/problem/49
 ;; Split a sequence
@@ -506,10 +513,9 @@ dedupe
 ;; (= (__ 3 [1 2 3 4 5 6]) [[1 2 3] [4 5 6]])
 ;; (= (__ 1 [:a :b :c :d]) [[:a] [:b :c :d]])
 ;; (= (__ 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])
-
-
-
-
+(fn [split-point seq]
+  (let [splited (partition-all split-point seq)]
+    (vector (first splited) (apply concat (rest splited)))))
 
 ;; http://www.4clojure.com/problem/50
 ;; Split by Type
@@ -519,11 +525,7 @@ dedupe
 ;; (= (set (__ [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})
 ;; (= (set (__ [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})
 ;; (= (set (__ [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})
-
-
-
-
-
+#(vals (group-by type %))
 
 ;; http://www.4clojure.com/problem/51
 ;; Advanced Destructuring
@@ -531,13 +533,7 @@ dedupe
 ;; Description: Here is an example of some more sophisticated destructuring. 
 ;; TestCases: 
 ;; (= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] __] [a b c d]))
-
-
-
-
-
-
-
+[1 2 3 4 5]
 
 ;; http://www.4clojure.com/problem/52
 ;; Intro to Destructuring
@@ -545,12 +541,7 @@ dedupe
 ;; Description: Let bindings and function parameter lists support destructuring. 
 ;; TestCases: 
 ;; (= [2 4] (let [[a b c d e f g] (range)] __))
-
-
-
-
-
-
+[c e]
 
 ;; http://www.4clojure.com/problem/53
 ;; Longest Increasing Sub-Seq
@@ -589,12 +580,8 @@ dedupe
 ;; (= (__ [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})
 ;; (= (__ [:b :a :b :a :b]) {:a 2, :b 3})
 ;; (= (__ '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})
-
-
-
-
-
-
+(fn [coll]
+  (into {} (map #(vector (key %) (count (val %))) (group-by identity coll))))
 
 ;; http://www.4clojure.com/problem/56
 ;; Find Distinct Items
@@ -605,14 +592,9 @@ dedupe
 ;; (= (__ [:a :a :b :b :c :c]) [:a :b :c])
 ;; (= (__ '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))
 ;; (= (__ (range 50)) (range 50))
-
-
-
-
-
-
-
-
+(fn [coll]
+  (sort-by #(.indexOf coll %)
+           (keys (group-by identity coll))))
 
 ;; http://www.4clojure.com/problem/57
 ;; Simple Recursion
@@ -620,10 +602,7 @@ dedupe
 ;; Description: A recursive function is a function which calls itself. This is one of the fundamental techniques used in functional programming. 
 ;; TestCases: 
 ;; (= __ ((fn foo [x] (when (> x 0) (conj (foo (dec x)) x))) 5))
-
-
-
-
+'(5 4 3 2 1)
 
 ;; http://www.4clojure.com/problem/58
 ;; Function Composition
@@ -634,12 +613,9 @@ dedupe
 ;; (= 5 ((__ (partial + 3) second) [1 2 3 4]))
 ;; (= true ((__ zero? #(mod % 8) +) 3 5 7 9))
 ;; (= "HELLO" ((__ #(.toUpperCase %) #(apply str %) take) 5 "hello world"))
-
-
-
-
-
-
+(fn [& funcs]
+  (fn [& args]
+    (first (reduce #(vector (apply %2 %1)) args (reverse funcs)))))
 
 ;; http://www.4clojure.com/problem/59
 ;; Juxtaposition
@@ -650,12 +626,6 @@ dedupe
 ;; (= ["HELLO" 5] ((__ #(.toUpperCase %) count) "hello"))
 ;; (= [2 6 4] ((__ :a :c :b) {:a 2, :b 4, :c 6, :d 8 :e 10}))
 
-
-
-
-
-
-
 ;; http://www.4clojure.com/problem/60
 ;; Sequence Reductions
 ;; Difficulty: Medium Topics: seqs core-functions
@@ -664,12 +634,6 @@ dedupe
 ;; (= (take 5 (__ + (range))) [0 1 3 6 10])
 ;; (= (__ conj [1] [2 3 4]) [[1] [1 2] [1 2 3] [1 2 3 4]])
 ;; (= (last (__ * 2 [3 4 5])) (reduce * 2 [3 4 5]) 120)
-; cheated 
-
-
-
-
-
 
 ;; http://www.4clojure.com/problem/61
 ;; Map Construction
@@ -679,11 +643,16 @@ dedupe
 ;; (= (__ [:a :b :c] [1 2 3]) {:a 1, :b 2, :c 3})
 ;; (= (__ [1 2 3 4] ["one" "two" "three"]) {1 "one", 2 "two", 3 "three"})
 ;; (= (__ [:foo :bar] ["foo" "bar" "baz"]) {:foo "foo", :bar "bar"})
-
-
-
-
-
+(fn [keys vals]
+  [keys vals]
+  (loop [map {}
+         ks (seq keys)
+         vs (seq vals)]
+    (if (and ks vs)
+      (recur (assoc map (first ks) (first vs))
+             (next ks)
+             (next vs))
+      map)))
 
 ;; http://www.4clojure.com/problem/62
 ;; Re-implement Iterate
@@ -693,15 +662,6 @@ dedupe
 ;; (= (take 5 (__ #(* 2 %) 1)) [1 2 4 8 16])
 ;; (= (take 100 (__ inc 0)) (take 100 (range)))
 ;; (= (take 9 (__ #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))
-
-
-
-
-
-
-
-
-
 
 ;; http://www.4clojure.com/problem/63
 ;; Group a Sequence
@@ -714,13 +674,6 @@ dedupe
 ;; (= (__ count [[1] [1 2] [3] [1 2 3] [2 3]])
 ;;    {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]})
 
-
-
-
-
-
-
-
 ;; http://www.4clojure.com/problem/64
 ;; Intro to Reduce
 ;; Difficulty: Elementary Topics: seqs
@@ -729,14 +682,7 @@ dedupe
 ;; (= 15 (reduce __ [1 2 3 4 5]))
 ;; (=  0 (reduce __ []))
 ;; (=  6 (reduce __ 1 [2 3]))
-
-
-
-
-
-
-
-
++
 
 ;; http://www.4clojure.com/problem/65
 ;; Black Box Testing
@@ -749,14 +695,6 @@ dedupe
 ;; (= :set (__ #{10 (rand-int 5)}))
 ;; (= [:map :set :vector :list] (map __ [{} #{} [] ()]))
 
-
-
-
-
-
-
-
-
 ;; http://www.4clojure.com/problem/66
 ;; Greatest Common Divisor
 ;; Difficulty: Easy Topics:
@@ -766,11 +704,8 @@ dedupe
 ;; (= (__ 10 5) 5)
 ;; (= (__ 5 7) 1)
 ;; (= (__ 1023 858) 33)
-
-
-
-
-
+(fn [a b]
+  (if (zero? b) a (recur b (mod a b))))
 
 ;; http://www.4clojure.com/problem/67
 ;; Prime Numbers
@@ -780,16 +715,8 @@ dedupe
 ;; (= (__ 2) [2 3])
 ;; (= (__ 5) [2 3 5 7 11])
 ;; (= (last (__ 100)) 541)
-
-
-
-
-
-
-
-
-
-
+(fn [n]
+  (take n (filter #(.isProbablePrime (BigInteger/valueOf %) 5) (iterate inc 2))))
 
 ;; http://www.4clojure.com/problem/68
 ;; Recurring Theme
@@ -802,12 +729,7 @@ dedupe
 ;;     (if (> x 0)
 ;;       (recur (dec x) (conj result (+ 2 x)))
 ;;       result)))
-
-
-
-
-
-
+[7 6 5 4 3]
 
 ;; http://www.4clojure.com/problem/69
 ;; Merge with a Function
