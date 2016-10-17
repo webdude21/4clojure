@@ -744,11 +744,6 @@ dedupe
 ;;    {:a [3 4 5], :b [6 7], :c [8 9]})
 
 
-
-
-
-
-
 ;; http://www.4clojure.com/problem/70
 ;; Word Sorting
 ;; Difficulty: Medium Topics: sorting
@@ -760,11 +755,8 @@ dedupe
 ;;    ["a" "Clojure" "fun" "is" "language"])
 ;; (= (__  "Fools fall for foolish follies.")
 ;;    ["fall" "follies" "foolish" "Fools" "for"])
-
-
-
-
-
+(defn split-and-sort [x]
+  (sort String/CASE_INSENSITIVE_ORDER (clojure.string/split x #"\W")))
 
 ;; http://www.4clojure.com/problem/71
 ;; Rearranging Code: ->
@@ -774,12 +766,7 @@ dedupe
 ;; (= (__ (sort (rest (reverse [2 5 4 1 3 6]))))
 ;;    (-> [2 5 4 1 3 6] reverse rest sort __)
 ;;    5)
-
-
-
-
-
-
+last
 
 ;; http://www.4clojure.com/problem/72
 ;; Rearranging Code: ->>
@@ -789,11 +776,7 @@ dedupe
 ;; (= (__ (map inc (take 3 (drop 2 [2 5 4 1 3 6]))))
 ;;    (->> [2 5 4 1 3 6] (drop 2) (take 3) (map inc) (__))
 ;;    11)
-
-
-
-
-
+reduce +
 
 ;; http://www.4clojure.com/problem/73
 ;; Analyze a Tic-Tac-Toe Board
