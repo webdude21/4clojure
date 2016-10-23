@@ -662,6 +662,8 @@ dedupe
 ;; (= (take 5 (__ #(* 2 %) 1)) [1 2 4 8 16])
 ;; (= (take 100 (__ inc 0)) (take 100 (range)))
 ;; (= (take 9 (__ #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))
+(fn re-iterate [func initial]
+  (cons initial (lazy-seq (re-iterate func (func initial)))))
 
 ;; http://www.4clojure.com/problem/63
 ;; Group a Sequence
@@ -673,6 +675,10 @@ dedupe
 ;;    {1/2 [[1 2] [2 4] [3 6]], 2/3 [[4 6]]})
 ;; (= (__ count [[1] [1 2] [3] [1 2 3] [2 3]])
 ;;    {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]})
+(fn grp-seq [func vals]
+  (into {}
+        (map #(vector (func (first % )) (vec %))
+             (partition-by func (sort vals)))))
 
 ;; http://www.4clojure.com/problem/64
 ;; Intro to Reduce
