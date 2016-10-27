@@ -811,14 +811,6 @@ reduce +
 ;;             [:x :o :x]
 ;;             [:o :x :o]]))
 
-
-
-
-
-
-
-
-
 ;; http://www.4clojure.com/problem/74
 ;; Filter Perfect Squares
 ;; Difficulty: Medium Topics:
@@ -826,9 +818,12 @@ reduce +
 ;; TestCases: 
 ;; (= (__ "4,5,6,7,8,9") "4,9")
 ;; (= (__ "15,16,25,36,37") "16,25,36")
-
-
-
+(defn only-perfect-squares [s]
+  (let [parsedInts (map #(Integer/parseInt %) (clojure.string/split s #","))
+        perfect-square? (fn [i]
+                          (let [sqr (Math/sqrt i)]
+                            (= (Math/floor sqr) sqr)))]
+    (clojure.string/join \, (filter perfect-square? parsedInts))))
 
 ;; http://www.4clojure.com/problem/75
 ;; Euler's Totient Function
